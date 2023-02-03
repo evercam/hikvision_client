@@ -1,4 +1,4 @@
 %{
-  "digex_request": {:hex, :digex_request, "0.1.0", "e8fc8ef8865f80fbc9b6e9c5b45fa91f8ee2c9743077c103f3de7b1105197196", [:mix], [], "hexpm", "c4ac2a3043af27c6578da581252a00cffce05ee904ddf5d26c2e274a32d05ee4"},
+  "digex_request": {:hex, :digex_request, "0.2.0", "c70d8f0136abe6df1c084bbaecfa339620e8409f75f414fcea95526d676eca65", [:mix], [], "hexpm", "3f634f8e34f8f3096cb355c3f87fd2b915fc0b4dae1f9779f52f820ce94736b9"},
   "sweet_xml": {:hex, :sweet_xml, "0.7.3", "debb256781c75ff6a8c5cbf7981146312b66f044a2898f453709a53e5031b45b", [:mix], [], "hexpm", "e110c867a1b3fe74bfc7dd9893aa851f0eed5518d0d7cad76d7baafd30e4f5ba"},
 }

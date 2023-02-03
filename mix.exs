@@ -19,7 +19,7 @@ defmodule HikvisionClient.MixProject do
 
   defp deps do
     [
-      {:digex_request, "~> 0.1"},
+      {:digex_request, "~> 0.2"},
       {:sweet_xml, ">= 0.0.0", optional: true}
     ]
   end

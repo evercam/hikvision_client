@@ -7,9 +7,7 @@ defmodule Hikvision.System do
   Get the system status of the Camera/NVR
   """
   @spec status(Client.t()) :: Hikvision.success() | Hikvision.error()
-  def status(%Client{} = client) do
-    client
-    |> Client.path("/System/status")
-    |> Client.request(&Parsers.parse_system_status/1)
-  end
+  def status(client),
+    do:
+      Client.request(client, :get, "/System/status", nil, parser: &Parsers.parse_system_status/1)
 end

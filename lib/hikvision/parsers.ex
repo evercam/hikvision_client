@@ -19,9 +19,19 @@ if Code.ensure_loaded?(SweetXml) do
           ~x"./MemoryList/Memory"lo,
           description: ~x"./memoryDescription/text()"s,
           usage: ~x"./memoryUsage/text()"s |> SweetXml.transform_by(&to_float/1),
-          available: ~x"./memoryAvailable/text()"s |> SweetXml.transform_by(&to_float/1),
+          available: ~x"./memoryAvailable/text()"s |> SweetXml.transform_by(&to_float/1)
         ],
         file_handles: ~x"./openFileHandles/text()"io
+      )
+    end
+
+    def parse_error(%{body: xml}) do
+      xml
+      |> SweetXml.xpath(~x"//ResponseStatus",
+        endpoint: ~x"./requestURL/text()"s,
+        status_code: ~x"./statusCode/text()"i,
+        code: ~x"./subStatusCode/text()"s,
+        description: ~x"./statusString/text()"s
       )
     end
 
