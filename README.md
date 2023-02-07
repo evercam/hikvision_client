@@ -24,7 +24,7 @@ client = Hikvision.new_client("192.168.1.100:8896", "username", "password")
 
 And then call one of the endpoints
 ```elixir
-{:ok, resp, client} = Hikvision.system_status(client)
+{:ok, resp} = Hikvision.system_status(client)
 ```
 
 A response example will be
@@ -37,7 +37,7 @@ A response example will be
     }
   ],
   current_device_time: "2023-01-30T15:47:54-05:00",
-  device_up_time: 56145,
+  device_uptime: 56145,
   file_handles: nil,
   memory: [
     %{
@@ -50,6 +50,6 @@ A response example will be
  }
 ```
 
-Note that the updated client returned after each call, this is done to reuse the same session if there's multiple calls in short time.
-We didn't opt for a process because the use case is simple and there's no need for a GenServer.
+The digest header is cached in the `Process` dictionnary using `Process.put/1` and fetched and injected in the next response. As the client is 
+cheaper to create, it's not a problem to create multiple clients even one per **Process**.  
 

@@ -7,7 +7,7 @@ defmodule Hikvision do
   @type error :: {:error, :unauthorized} | {:error, :server_error} | {:error, map()}
   @type success :: {:ok, map(), Client.t()}
 
-  @spec new_client(Client.host(), String.t(), String.t(), Client.req_handler()) :: Client.t()
+  @spec new_client(Client.url(), String.t(), String.t(), Client.req_handler() | nil) :: Client.t()
   defdelegate new_client(host, username, password, handler \\ nil), to: Client, as: :new
 
   @spec system_status(Client.t()) :: success() | error()

@@ -33,6 +33,7 @@ defmodule Hikvision.Client do
           handler: req_handler()
         }
 
+  @enforce_keys [:url, :username, :password]
   defstruct url: nil, username: nil, password: nil, prefix: "/ISAPI", handler: nil
 
   @doc """

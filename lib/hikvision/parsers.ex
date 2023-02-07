@@ -8,7 +8,7 @@ if Code.ensure_loaded?(SweetXml) do
       xml
       |> SweetXml.xpath(~x"//DeviceStatus",
         current_device_time: ~x"./currentDeviceTime/text()"s,
-        device_up_time: ~x"./deviceUpTime/text()"i,
+        device_uptime: ~x"./deviceUpTime/text()"i,
         status: ~x"./deviceStatus"s,
         cpus: [
           ~x"./CPUList/CPU"lo,
