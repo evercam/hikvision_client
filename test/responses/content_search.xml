@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<CMSearchResult version="2.0" xmlns="http://www.isapi.org/ver20/XMLSchema">
+<searchID>@id</searchID>
+<responseStatus>true</responseStatus>
+<responseStatusStrg>OK</responseStatusStrg>
+<numOfMatches>1</numOfMatches>
+<matchList>
+<searchMatchItem>
+<sourceID>{00000000-0000-0000-0000-000000000000}</sourceID>
+<trackID>101</trackID>
+<timeSpan>
+<startTime>2023-02-07T07:22:14Z</startTime>
+<endTime>2023-02-07T07:22:14Z</endTime>
+</timeSpan>
+<mediaSegmentDescriptor>
+<contentType>video</contentType>
+<codecType>H.264-BP</codecType>
+<playbackURI>rtsp://localhost:8880/Streaming/tracks/101/?starttime=20230206T232846Z&amp;endtime=20230207T004814Z&amp;name=00000004821000000&amp;size=1064376612</playbackURI>
+<lockStatus>unlock</lockStatus>
+<name>00000004821000000</name>
+</mediaSegmentDescriptor>
+<metadataMatches>
+<metadataDescriptor>recordType.meta.hikvision.com/timing</metadataDescriptor>
+</metadataMatches>
+</searchMatchItem>
+</matchList>
+</CMSearchResult>

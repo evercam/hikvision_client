@@ -33,41 +33,17 @@ defmodule Hikvision.Client do
           handler: req_handler()
         }
 
-  @enforce_keys [:url, :username, :password]
-  defstruct url: nil, username: nil, password: nil, prefix: "/ISAPI", handler: nil
+  @enforce_keys [:url, :username, :password, :_id]
+  defstruct url: nil, username: nil, password: nil, prefix: "/ISAPI", handler: nil, _id: nil
 
-  @doc """
-  Create a new Hikvision http client
-
-  Returns a new http client to use for subsequent requests. `handler` is a function that'll be invoked when
-  a request needs to be sent. This is useful if the caller wants to use another `http client`.
-
-  # Examples
-
-  Create a new client:
-  ```elixir
-  client = Hikvision.Client.new("localhost:8888", "user", "pass")
-  ```
-
-  Create a client with custom handler:
-  ```elixir
-  def request(method, url, headers, body, opts) do
-    # use an http client (Finch, Hackney, ...etc.) to make a request
-
-    # return
-    {:ok, %Response{}} or {:error, any}
-  end
-
-  client = Hikvision.Client.new("localhost:8888", "user", "pass", &request/5)
-  ```
-  """
   @spec new(url(), String.t(), String.t(), req_handler() | nil) :: Hikvision.Client.t()
   def new(url, username, password, handler \\ nil) do
     %__MODULE__{
       url: url,
       username: username,
       password: password,
-      handler: handler
+      handler: handler,
+      _id: UUID.uuid4()
     }
   end
 
@@ -83,11 +59,11 @@ defmodule Hikvision.Client do
         {:error, :unauthorized}
 
       {:ok, %{status: status} = resp, req} when status in 200..299 ->
-        Process.put(:digex_request, req)
+        Process.put(client._id, req)
         {:ok, parser_fn.(resp)}
 
       {:ok, %{status: status} = resp, req} when status in 400..499 ->
-        Process.put(:digex_request, req)
+        Process.put(client._id, req)
         {:error, Parsers.parse_error(resp)}
 
       {:ok, _resp, _req} ->
@@ -99,7 +75,7 @@ defmodule Hikvision.Client do
   end
 
   defp get_or_create_digex_request(
-         %__MODULE__{username: username, password: pass},
+         %__MODULE__{_id: id, username: username, password: pass},
          method,
          url,
          query_params,
@@ -108,7 +84,7 @@ defmodule Hikvision.Client do
        ) do
     url = "#{url}?#{query_params}"
 
-    case Process.get(:digex_request) do
+    case Process.get(id) do
       nil ->
         DigexRequest.new(method, url, username, pass, headers, body)
 

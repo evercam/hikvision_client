@@ -1,0 +1,18 @@
+{
+  "total": 1,
+  "status": "OK",
+  "items": [
+    {
+      "track_id": 101,
+      "start_time": "2023-02-07T07:22:14Z",
+      "end_time": "2023-02-07T07:22:14Z",
+      "content_type": "video",
+      "codec": "H.264-BP",
+      "name": "00000004821000000",
+      "playback_uri": "rtsp://localhost:8880/Streaming/tracks/101/?starttime=20230206T232846Z&endtime=20230207T004814Z&name=00000004821000000&size=1064376612",
+      "lock_status": "unlock",
+      "source_id": "{00000000-0000-0000-0000-000000000000}",
+      "rate_type": ""
+    }
+  ]
+}

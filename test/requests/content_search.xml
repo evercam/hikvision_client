@@ -1,0 +1,14 @@
+<CMSearchDescription version="2.0" xmlns="http://www.isapi.org/ver20/XMLSchema">
+<searchID>@id</searchID>
+<trackIDList>
+<trackID>@track_id</trackID>
+</trackIDList>
+<timeSpanList>
+<timeSpan>
+<startTime>@start_time</startTime>
+<endTime>@end_time</endTime>
+</timeSpan>
+</timeSpanList>
+<searchResultPosition>0</searchResultPosition>
+<maxResults>64</maxResults>
+</CMSearchDescription>

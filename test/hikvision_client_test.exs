@@ -2,16 +2,7 @@ defmodule HikvisionClientTest do
   use ExUnit.Case, async: true
 
   import Plug.Conn
-
-  @error_response """
-  <?xml version="1.0" encoding="UTF-8"?>
-  <ResponseStatus version="2.0" xmlns="http://www.hikvision.com/ver20/XMLSchema">
-  <requestURL>/ISAPI/System/status</requestURL>
-  <statusCode>4</statusCode>
-  <statusString>Invalid Operation</statusString>
-  <subStatusCode>methodNotAllowed</subStatusCode>
-  </ResponseStatus>
-  """
+  import SweetXml, only: [sigil_x: 2]
 
   setup do
     bypass = Bypass.open()
@@ -48,6 +39,41 @@ defmodule HikvisionClientTest do
     end
   end
 
+  describe "Content management tests" do
+    test "Search video footages", %{bypass: bypass} do
+      start_time = ~U(2023-02-09 10:00:00Z)
+      end_time = ~U(2023-02-09 12:00:00Z)
+
+      Bypass.expect_once(bypass, "POST", "/ISAPI/ContentMgmt/search", fn conn ->
+        {:ok, body, conn} = read_body(conn)
+        id = SweetXml.xpath(body, ~x"//CMSearchDescription", id: ~x"./searchID/text()"s).id
+
+        expected_body =
+          File.read!("test/requests/content_search.xml")
+          |> String.replace("\n", "")
+          |> String.replace("@id", id)
+          |> String.replace("@track_id", "101")
+          |> String.replace("@start_time", DateTime.to_iso8601(start_time))
+          |> String.replace("@end_time", DateTime.to_iso8601(end_time))
+
+        assert expected_body == body
+
+        conn
+        |> put_resp_content_type("application/xml")
+        |> resp(200, File.read!("test/responses/content_search.xml") |> String.replace("@id", id))
+      end)
+
+      expected_result =
+        Jason.decode!(File.read!("test/expected_responses/content_search.json"), keys: :atoms)
+
+      assert {:ok, ^expected_result} =
+               Hikvision.content_search(hik_client(bypass.port), 1,
+                 start_time: start_time,
+                 end_time: end_time
+               )
+    end
+  end
+
   describe "Error responses" do
     test "Wrong username/password", %{bypass: bypass} do
       Bypass.expect(bypass, fn conn ->
@@ -70,7 +96,7 @@ defmodule HikvisionClientTest do
       Bypass.expect(bypass, fn conn ->
         conn
         |> put_resp_content_type("application/xml")
-        |> resp(400, @error_response)
+        |> resp(400, File.read!("test/responses/error.xml"))
       end)
 
       assert {:error,

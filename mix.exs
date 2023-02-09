@@ -20,8 +20,10 @@ defmodule HikvisionClient.MixProject do
   defp deps do
     [
       {:digex_request, "~> 0.2"},
+      {:uuid, "~> 1.1"},
       {:sweet_xml, ">= 0.0.0", optional: true},
-      {:bypass, "~> 2.1", only: :test}
+      {:bypass, "~> 2.1", only: :test},
+      {:jason, "~> 1.4", only: :test}
     ]
   end
 end

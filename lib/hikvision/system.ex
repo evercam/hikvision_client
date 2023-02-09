@@ -3,9 +3,6 @@ defmodule Hikvision.System do
 
   alias Hikvision.{Client, Parsers}
 
-  @doc """
-  Get the system status of the Camera/NVR
-  """
   @spec status(Client.t()) :: Hikvision.success() | Hikvision.error()
   def status(client),
     do:

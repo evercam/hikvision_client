@@ -1,6 +1,6 @@
 # HikvisionClient
 
-HTTP client that talks to **Hikvision** Camera/NVR.
+HTTP client that talks to **Hikvision** Camera/NVR using **ISAPI**.
 
 ## Installation
 
