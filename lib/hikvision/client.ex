@@ -1,13 +1,14 @@
 defmodule Hikvision.Client do
   @moduledoc """
-  HTTP client responsible for sending requests and parsing responses.
+  HTTP client to send requests and parse responses.
   """
 
   use DigexRequest
 
   alias Hikvision.Parsers
 
-  import Hikvision.HTTP.Utils, only: [encode_query_params: 1]
+  import Hikvision.HTTP.Utils,
+    only: [encode_query_params: 1, headers_from_charlist: 1, headers_to_charlist: 1]
 
   @type method :: :get | :post | :put | :delete | :patch | :options | :head
   @type headers :: [{binary(), binary}]
@@ -98,7 +99,34 @@ defmodule Hikvision.Client do
 
   @impl DigexRequest
   def handle_request(method, url, headers, body, opts) do
-    handler = Keyword.get(opts, :handler) || (&super/5)
-    handler.(method, url, headers, body, Keyword.delete(opts, :handler))
+    if Keyword.has_key?(opts, :stream) do
+      stream(method, url, headers, body, opts)
+    else
+      handler = Keyword.get(opts, :handler) || (&super/5)
+      handler.(method, url, headers, body, Keyword.delete(opts, :handler))
+    end
+  end
+
+  defp stream(method, url, headers, body, opts) do
+    request =
+      if method in ~w(post put patch delete)a,
+        do: {to_charlist(url), headers_to_charlist(headers), '', body},
+        else: {to_charlist(url), headers_to_charlist(headers)}
+
+    case :httpc.request(method, request, [], stream: to_charlist(opts[:stream])) do
+      {:ok, :saved_to_file} ->
+        {:ok, %DigexRequest.Response{headers: [], status: 200}}
+
+      {:ok, {{_, status, _}, headers, body}} ->
+        {:ok,
+         %DigexRequest.Response{
+           status: status,
+           headers: headers_from_charlist(headers),
+           body: body
+         }}
+
+      {:error, error} ->
+        {:error, error}
+    end
   end
 end

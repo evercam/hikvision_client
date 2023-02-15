@@ -4,6 +4,8 @@ defmodule HikvisionClientTest do
   import Plug.Conn
   import SweetXml, only: [sigil_x: 2]
 
+  alias Hikvision.ContentManagement.CMSearchDescription
+
   setup do
     bypass = Bypass.open()
     {:ok, bypass: bypass}
@@ -20,7 +22,7 @@ defmodule HikvisionClientTest do
         resp(conn, 200, data)
       end)
 
-      assert {:ok, ^data} = Hikvision.snapshot(hik_client(bypass.port), "101")
+      assert {:ok, ^data} = Hikvision.snapshot("101", hik_client(bypass.port))
     end
 
     test "Get snapshot from NVR", %{bypass: bypass, image_data: data} do
@@ -35,7 +37,7 @@ defmodule HikvisionClientTest do
       end)
 
       assert {:ok, ^data} =
-               Hikvision.snapshot(hik_client(bypass.port), "201", width: 1280, height: 720)
+               Hikvision.snapshot("201", hik_client(bypass.port), width: 1280, height: 720)
     end
   end
 
@@ -66,11 +68,41 @@ defmodule HikvisionClientTest do
       expected_result =
         Jason.decode!(File.read!("test/expected_responses/content_search.json"), keys: :atoms)
 
-      assert {:ok, ^expected_result} =
-               Hikvision.content_search(hik_client(bypass.port), 1,
-                 start_time: start_time,
-                 end_time: end_time
-               )
+      op =
+        CMSearchDescription.new(1)
+        |> CMSearchDescription.with_start_time(start_time)
+        |> CMSearchDescription.with_end_time(end_time)
+
+      assert {:ok, ^expected_result} = Hikvision.content_search(op, hik_client(bypass.port))
+    end
+
+    test "Download video footage", %{bypass: bypass} do
+      playback_uri = "rtsp://localhost:2034/Streaming/tracks/101/?starttime=20230215T000000Z&endtime=20230215T005800Z&name=000015&size=2048"
+      dest_file = Path.join("test", "file.mp4")
+
+      Bypass.expect_once(bypass, "POST", "/ISAPI/ContentMgmt/download", fn conn ->
+        {:ok, body, conn} = read_body(conn)
+
+        expected_body =
+          File.read!("test/requests/content_download.xml")
+          |> String.replace("\n", "")
+          |> String.replace("@playbackURI", playback_uri)
+
+        assert expected_body == body
+
+        conn
+        |> put_resp_content_type("video/mp4")
+        |> put_resp_header("content-disposition", "attachment; filename=sample.mp4")
+        |> send_file(200, "test/responses/video_sample")
+      end)
+
+      expected_result = File.read!("test/responses/video_sample")
+
+      assert {:ok, _} = Hikvision.content_download(playback_uri, hik_client(bypass.port), stream: dest_file)
+      assert File.exists?(dest_file)
+      assert expected_result == File.read!(dest_file)
+
+      File.rm_rf!(dest_file)
     end
   end
 

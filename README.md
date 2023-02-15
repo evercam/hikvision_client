@@ -19,7 +19,7 @@ end
 
 Create a client
 ```elixir
-client = Hikvision.new_client("192.168.1.100:8896", "username", "password")
+client = Hikvision.new_client("http://192.168.1.100:8896", "username", "password")
 ```
 
 And then call one of the endpoints

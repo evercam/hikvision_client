@@ -2,6 +2,7 @@ defmodule Hikvision do
   @moduledoc File.read!("README.md")
 
   alias Hikvision.{Client, ContentManagement, Streaming, System}
+  alias Hikvision.ContentManagement.CMSearchDescription
 
   @type error :: {:error, :unauthorized} | {:error, :server_error} | {:error, map()}
   @type success :: {:ok, map()}
@@ -52,8 +53,8 @@ defmodule Hikvision do
     * *width* - The width of the picture, it's only working with NVR
     * *height* - The height of the picture, it's only working with NVR
   """
-  @spec snapshot(Client.t(), String.t(), Keyword.t()) :: binary() | error()
-  defdelegate snapshot(client, channel, opts \\ []), to: Streaming
+  @spec snapshot(channel(), Client.t(), Keyword.t()) :: binary() | error()
+  defdelegate snapshot(channel, client, opts \\ []), to: Streaming
 
   @spec search_profile(Client.t()) :: success() | error()
   defdelegate search_profile(client), to: ContentManagement
@@ -61,21 +62,23 @@ defmodule Hikvision do
   @doc """
   Search content in the device
 
-  The following options can be supplied:
-    * *start_time* - the start time of the search, defaults to today at midnight UTC
-    * *end_time* - the end time of the search, default to the current time in UTC
-    * *type* - where to search, it accepts the following values:
-      - `:main_stream` - search in the video main stream of the channel
-      - `:sub_stream` - search in the video sub stream of the channel
-      - `:picture` - search in the pictures of the channel
-
-      Default value is `main_stream`, any value that is not recognized is ignored and `:main_stream` is used.
-
-  Note that we fetch all the records, means that we send the requests recursively until all the records are
+  This operation fetch all the records, means that we send the requests recursively until all the records are
   fetched. Hikvision will return only a subset of the records if there's too many to return at once.
 
-  Consider updating `start_time` and `end_time` to have fewer results.
+  Consider updating `start_time` and `end_time` using `CMSearchDescription.with_start_time/2` and `CMSearchDescription.with_end_time/2`
+  to have fewer results.
   """
-  @spec content_search(Client.t(), channel(), Keyword.t()) :: success() | error()
-  defdelegate content_search(client, channel, opts \\ []), to: ContentManagement, as: :search
+  @spec content_search(CMSearchDescription.t(), Client.t()) :: success() | error()
+  defdelegate content_search(search_op, client), to: ContentManagement, as: :search
+
+  @doc """
+  Download video footage.
+
+  A playback URI must be supplied to download the resource, the URI can be obtained from
+  the response of `content_search/2` function
+  """
+  @spec content_download(String.t(), Client.t(), Keyword.t()) :: success() | error()
+  defdelegate content_download(playback_uri, client, opts \\ []),
+    to: ContentManagement,
+    as: :download
 end

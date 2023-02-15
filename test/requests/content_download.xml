@@ -1,0 +1,3 @@
+<downloadRequest version="1.0" xmlns="http://www.isapi.org/ver20/XMLSchema">
+<playbackURI>@playbackURI</playbackURI>
+</downloadRequest>
