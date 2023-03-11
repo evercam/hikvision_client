@@ -1,4 +1,4 @@
-# HikvisionClient
+# Hikvision Client
 
 HTTP client that talks to **Hikvision** Camera/NVR using **ISAPI**.
 
@@ -17,14 +17,15 @@ end
 
 ## Usage
 
-Create a client
+Create an operation
 ```elixir
-client = Hikvision.new_client("http://192.168.1.100:8896", "username", "password")
+operation = Hikvision.System.status()
 ```
 
-And then call one of the endpoints
+And then send the request
 ```elixir
-{:ok, resp} = Hikvision.system_status(client)
+config = [scheme: "http", host: "localhost", port: 8200, username: "user", password: "password"]
+{:ok, resp} = Hikvision.request(op, config)
 ```
 
 A response example will be
@@ -49,7 +50,4 @@ A response example will be
   status: ""
  }
 ```
-
-The digest header is cached in the `Process` dictionnary using `Process.put/1` and fetched and injected in the next response. As the client is 
-cheaper to create, it's not a problem to create multiple clients even one per **Process**.  
 

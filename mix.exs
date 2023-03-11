@@ -12,7 +12,7 @@ defmodule HikvisionClient.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
 
-      #Docs
+      # Docs
       name: "HikvisionClient",
       source_url: @repo,
       description: "Hikvision ISAPI client",
@@ -39,12 +39,11 @@ defmodule HikvisionClient.MixProject do
 
   defp deps do
     [
-      {:digex_request, "~> 0.2"},
       {:uuid, "~> 1.1"},
       {:sweet_xml, ">= 0.0.0", optional: true},
       {:bypass, "~> 2.1", only: :test},
       {:jason, "~> 1.4", only: :test},
-      {:ex_doc, "~> 0.27", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.27", only: :dev, runtime: false}
     ]
   end
 end

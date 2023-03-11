@@ -4,8 +4,6 @@ defmodule HikvisionClientTest do
   import Plug.Conn
   import SweetXml, only: [sigil_x: 2]
 
-  alias Hikvision.ContentManagement.CMSearchDescription
-
   setup do
     bypass = Bypass.open()
     {:ok, bypass: bypass}
@@ -22,7 +20,7 @@ defmodule HikvisionClientTest do
         resp(conn, 200, data)
       end)
 
-      assert {:ok, ^data} = Hikvision.snapshot("101", hik_client(bypass.port))
+      assert {:ok, ^data} = req(Hikvision.Streaming.snapshot("101"), bypass)
     end
 
     test "Get snapshot from NVR", %{bypass: bypass, image_data: data} do
@@ -37,7 +35,7 @@ defmodule HikvisionClientTest do
       end)
 
       assert {:ok, ^data} =
-               Hikvision.snapshot("201", hik_client(bypass.port), width: 1280, height: 720)
+               req(Hikvision.Streaming.snapshot("201", width: 1280, height: 720), bypass)
     end
   end
 
@@ -68,16 +66,21 @@ defmodule HikvisionClientTest do
       expected_result =
         Jason.decode!(File.read!("test/expected_responses/content_search.json"), keys: :atoms)
 
-      op =
-        CMSearchDescription.new(1)
-        |> CMSearchDescription.with_start_time(start_time)
-        |> CMSearchDescription.with_end_time(end_time)
-
-      assert {:ok, ^expected_result} = Hikvision.content_search(op, hik_client(bypass.port))
+      assert {:ok, ^expected_result} =
+               req(
+                 Hikvision.ContentManagement.search(1,
+                   start_time: start_time,
+                   end_time: end_time,
+                   id: expected_result.id
+                 ),
+                 bypass
+               )
     end
 
     test "Download video footage", %{bypass: bypass} do
-      playback_uri = "rtsp://localhost:2034/Streaming/tracks/101/?starttime=20230215T000000Z&endtime=20230215T005800Z&name=000015&size=2048"
+      playback_uri =
+        "rtsp://localhost:2034/Streaming/tracks/101/?starttime=20230215T000000Z&endtime=20230215T005800Z&name=000015&size=2048"
+
       dest_file = Path.join("test", "file.mp4")
 
       Bypass.expect_once(bypass, "POST", "/ISAPI/ContentMgmt/download", fn conn ->
@@ -98,7 +101,8 @@ defmodule HikvisionClientTest do
 
       expected_result = File.read!("test/responses/video_sample")
 
-      assert {:ok, _} = Hikvision.content_download(playback_uri, hik_client(bypass.port), stream: dest_file)
+      assert :ok = req(Hikvision.ContentManagement.download(playback_uri, dest_file), bypass)
+
       assert File.exists?(dest_file)
       assert expected_result == File.read!(dest_file)
 
@@ -121,7 +125,7 @@ defmodule HikvisionClientTest do
         end
       end)
 
-      assert {:error, :unauthorized} = Hikvision.system_status(hik_client(bypass.port))
+      assert {:error, %{status: 401}} = req(Hikvision.System.status(), bypass)
     end
 
     test "Bad request", %{bypass: bypass} do
@@ -137,19 +141,27 @@ defmodule HikvisionClientTest do
                 status_code: 4,
                 code: "methodNotAllowed",
                 description: "Invalid Operation"
-              }} = Hikvision.system_status(hik_client(bypass.port))
+              }} = req(Hikvision.System.status(), bypass)
     end
 
     test "Internal server error", %{bypass: bypass} do
       Bypass.expect(bypass, fn conn -> resp(conn, 500, "Some random error") end)
-      assert {:error, :server_error} = Hikvision.system_status(hik_client(bypass.port))
+      assert {:error, %{status: 500}} = req(Hikvision.System.status(), bypass)
     end
 
     test "Server not reachable", %{bypass: bypass} do
       Bypass.down(bypass)
-      assert {:error, {:failed_connect, _}} = Hikvision.system_status(hik_client(bypass.port))
+      assert {:error, {:failed_connect, _}} = req(Hikvision.System.status(), bypass)
     end
   end
 
-  defp hik_client(port), do: Hikvision.new_client("http://localhost:#{port}", "user", "pass")
+  def req(op, bypass) do
+    Hikvision.request(op,
+      scheme: "http",
+      host: "localhost",
+      port: bypass.port,
+      username: "user",
+      password: "pass"
+    )
+  end
 end
