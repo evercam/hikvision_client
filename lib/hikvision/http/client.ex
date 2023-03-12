@@ -1,8 +1,6 @@
 defmodule Hikvision.Http.Client do
   @moduledoc false
 
-  import Hikvision.Http.Utils
-
   @type http_method :: :get | :post | :put | :delete | :head
 
   @spec request(
@@ -49,4 +47,12 @@ defmodule Hikvision.Http.Client do
   end
 
   defp http_options(opts), do: Keyword.take(opts, [:connect_timeout, :timeout])
+
+  def headers_to_charlist(headers) do
+    for {k, v} <- headers, do: {to_charlist(k), to_charlist(v)}
+  end
+
+  def headers_from_charlist(headers) do
+    for {k, v} <- headers, do: {to_string(k), to_string(v)}
+  end
 end

@@ -25,6 +25,10 @@ defmodule Hikvision.Operation do
             parser: &Function.identity/1,
             download_to: nil
 
+  @doc """
+  Create a new operation
+  """
+  @spec new(binary(), Keyword.t()) :: t()
   def new(path, opts \\ []) do
     struct(%__MODULE__{path: path}, opts)
   end
@@ -32,6 +36,7 @@ defmodule Hikvision.Operation do
   @doc """
   Performs an operation on a Hikvision device.
   """
+  @spec perform(t(), Hikvision.Config.t()) :: Hikvision.success() | Hikvision.error()
   def perform(%__MODULE__{} = op, config) do
     url = build_url(op, config)
 
@@ -66,11 +71,10 @@ defmodule Hikvision.Operation do
       {:ok, %{status: 401} = resp} ->
         {:error, resp}
 
-      {:ok, %{status: status} = resp} when status != 404 and status in 400..499 ->
-        {:error, Hikvision.Parsers.parse_error(resp)}
-
-      {:ok, %{status: status} = resp} when status >= 500 ->
-        {:error, resp}
+      {:ok, %{status: status} = resp} ->
+        if status == 404,
+          do: {:error, :not_found},
+          else: {:error, Hikvision.Parsers.parse_error(resp)}
 
       {:error, error} ->
         {:error, error}

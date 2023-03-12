@@ -145,8 +145,9 @@ defmodule HikvisionClientTest do
     end
 
     test "Internal server error", %{bypass: bypass} do
-      Bypass.expect(bypass, fn conn -> resp(conn, 500, "Some random error") end)
-      assert {:error, %{status: 500}} = req(Hikvision.System.status(), bypass)
+      Bypass.expect(bypass, fn conn -> resp(conn, 500, File.read!("test/responses/error.xml")) end)
+
+      assert {:error, %{status_code: 4}} = req(Hikvision.System.status(), bypass)
     end
 
     test "Server not reachable", %{bypass: bypass} do
@@ -157,7 +158,6 @@ defmodule HikvisionClientTest do
 
   def req(op, bypass) do
     Hikvision.request(op,
-      scheme: "http",
       host: "localhost",
       port: bypass.port,
       username: "user",
