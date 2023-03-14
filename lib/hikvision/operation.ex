@@ -37,14 +37,14 @@ defmodule Hikvision.Operation do
   Performs an operation on a Hikvision device.
   """
   @spec perform(t(), Hikvision.Config.t()) :: Hikvision.success() | Hikvision.error()
-  def perform(%__MODULE__{http_method: method} = op, config) do
+  def perform(%__MODULE__{http_method: method} = op, %{http_options: options} = config) do
     url = build_url(op, config)
 
     full_headers =
       Auth.inject_auth_headers(method, url, op.headers, config.username, config.password)
 
     with {:error, %{status: 401, headers: headers}} <-
-           do_request(method, url, op.body, full_headers, op.parser, op.download_to) do
+           do_request(method, url, op.body, full_headers, op.parser, op.download_to, options) do
       full_headers =
         Auth.inject_auth_headers(
           method,
@@ -55,12 +55,12 @@ defmodule Hikvision.Operation do
           headers
         )
 
-      do_request(method, url, op.body, full_headers, op.parser, op.download_to)
+      do_request(method, url, op.body, full_headers, op.parser, op.download_to, options)
     end
   end
 
-  defp do_request(http_method, url, body, headers, parser, download_to) do
-    case Client.request(http_method, url, body, headers, download_to) do
+  defp do_request(http_method, url, body, headers, parser, download_to, http_options) do
+    case Client.request(http_method, url, body, headers, download_to, http_options) do
       :ok ->
         :ok
 

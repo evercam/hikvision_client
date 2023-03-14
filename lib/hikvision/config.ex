@@ -1,17 +1,26 @@
 defmodule Hikvision.Config do
   @moduledoc false
 
-  @config [:scheme, :host, :port, :username, :password]
+  @config [:scheme, :host, :port, :username, :password, :http_options]
+
+  @connect_timeout 3_000
+  @timeout 5_000
 
   @type t :: %__MODULE__{
           scheme: binary(),
           host: binary(),
           port: 1..65536,
           username: binary(),
-          password: binary()
+          password: binary(),
+          http_options: [{:connect_timeout, pos_integer()} | {:timeout, pos_integer()}]
         }
 
-  defstruct scheme: "http", host: "localhost", port: 80, username: nil, password: nil
+  defstruct scheme: "http",
+            host: "localhost",
+            port: 80,
+            username: nil,
+            password: nil,
+            http_options: [connect_timeout: @connect_timeout, timeout: @timeout]
 
   @spec new(Keyword.t()) :: t()
   def new(config_overrides \\ []) do
