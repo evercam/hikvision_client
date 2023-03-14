@@ -3,7 +3,7 @@ defmodule Hikvision.Operation do
 
   import Hikvision.Http.Utils
 
-  alias Hikvision.Http.Client
+  alias Hikvision.{Auth, Http.Client}
 
   @type method :: :get | :put | :post | :delete | :head
 
@@ -37,26 +37,25 @@ defmodule Hikvision.Operation do
   Performs an operation on a Hikvision device.
   """
   @spec perform(t(), Hikvision.Config.t()) :: Hikvision.success() | Hikvision.error()
-  def perform(%__MODULE__{} = op, config) do
+  def perform(%__MODULE__{http_method: method} = op, config) do
     url = build_url(op, config)
 
+    full_headers =
+      Auth.inject_auth_headers(method, url, op.headers, config.username, config.password)
+
     with {:error, %{status: 401, headers: headers}} <-
-           do_request(
-             op.http_method,
-             url,
-             op.body,
-             with_auth_header(op, config),
-             op.parser,
-             op.download_to
-           ) do
-      do_request(
-        op.http_method,
-        url,
-        op.body,
-        with_auth_header(op, config, headers),
-        op.parser,
-        op.download_to
-      )
+           do_request(method, url, op.body, full_headers, op.parser, op.download_to) do
+      full_headers =
+        Auth.inject_auth_headers(
+          method,
+          url,
+          op.headers,
+          config.username,
+          config.password,
+          headers
+        )
+
+      do_request(method, url, op.body, full_headers, op.parser, op.download_to)
     end
   end
 

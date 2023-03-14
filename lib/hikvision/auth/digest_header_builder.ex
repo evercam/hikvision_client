@@ -1,4 +1,4 @@
-defmodule Hikvision.Http.DigestHeaderBuilder do
+defmodule Hikvision.Auth.DigestHeaderBuilder do
   @moduledoc """
   Resolve digest header challenge.
 

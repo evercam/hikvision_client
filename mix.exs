@@ -33,6 +33,7 @@ defmodule HikvisionClient.MixProject do
 
   def application do
     [
+      mod: {Hikvision, []},
       extra_applications: [:logger, :inets]
     ]
   end
