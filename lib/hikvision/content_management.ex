@@ -1,5 +1,7 @@
 defmodule Hikvision.ContentManagement do
-  @moduledoc false
+  @moduledoc """
+  Content management operations
+  """
 
   alias Hikvision.{Operation, Parsers}
 

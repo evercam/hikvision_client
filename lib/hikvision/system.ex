@@ -1,5 +1,7 @@
 defmodule Hikvision.System do
-  @moduledoc false
+  @moduledoc """
+  System related operations
+  """
 
   alias Hikvision.{Operation, Parsers}
 

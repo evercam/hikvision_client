@@ -1,5 +1,7 @@
 defmodule Hikvision.PTZ do
-  @moduledoc false
+  @moduledoc """
+  PTZ(pan/tilt/zoom) operations
+  """
 
   alias Hikvision.Operation
 

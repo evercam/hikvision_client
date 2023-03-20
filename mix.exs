@@ -17,7 +17,7 @@ defmodule HikvisionClient.MixProject do
       source_url: @repo,
       description: "Hikvision ISAPI client",
       docs: [
-        main: "Hikivision",
+        main: "Hikvision",
         source_ref: "v#{@version}",
         source_url: @repo,
         extras: ["README.md"]

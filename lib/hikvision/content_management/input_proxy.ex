@@ -1,5 +1,7 @@
 defmodule Hikvision.ContentManagement.InputProxy do
-  @moduledoc false
+  @moduledoc """
+  Input proxy operations
+  """
 
   @prefix "/ISAPI/ContentMgmt/InputProxy"
 

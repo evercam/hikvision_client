@@ -1,5 +1,7 @@
 defmodule Hikvision.Config do
-  @moduledoc false
+  @moduledoc """
+  Holds configuration data
+  """
 
   @config [:scheme, :host, :port, :username, :password, :http_options]
 

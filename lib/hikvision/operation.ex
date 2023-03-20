@@ -1,5 +1,7 @@
 defmodule Hikvision.Operation do
-  @moduledoc false
+  @moduledoc """
+  Holds data necessary for an operation
+  """
 
   import Hikvision.Http.Utils
 

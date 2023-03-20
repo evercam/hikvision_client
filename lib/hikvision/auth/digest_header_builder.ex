@@ -1,9 +1,5 @@
 defmodule Hikvision.Auth.DigestHeaderBuilder do
-  @moduledoc """
-  Resolve digest header challenge.
-
-  It doesnt' follow `RFC 7616` and only supports `md5` hashing algorithm
-  """
+  @moduledoc false
 
   defstruct realm: nil,
             nonce: nil,

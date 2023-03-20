@@ -1,7 +1,11 @@
 defmodule Hikvision.Streaming do
-  @moduledoc false
+  @moduledoc """
+  Streaming operations
+  """
 
   alias Hikvision.{Parsers, Operation}
+
+  @type channel :: integer() | binary()
 
   @prefix "/ISAPI/Streaming"
 
@@ -16,7 +20,7 @@ defmodule Hikvision.Streaming do
   @doc """
   Get encoding configuration of a channel
   """
-  @spec channel(binary()) :: Operation.t()
+  @spec channel(channel()) :: Operation.t()
   def channel(channel) do
     Operation.new("#{@prefix}/channels/#{channel}", parser: &Parsers.parse_channel_config/1)
   end
@@ -31,7 +35,7 @@ defmodule Hikvision.Streaming do
     * *width* - The width of the picture, it's only working with NVR
     * *height* - The height of the picture, it's only working with NVR
   """
-  @spec snapshot(Hikvision.channel(), Keyword.t()) :: Hikvision.Operation.t()
+  @spec snapshot(channel(), Keyword.t()) :: Hikvision.Operation.t()
   def snapshot(channel, opts \\ []) do
     query_params = %{
       videoResolutionWidth: Keyword.get(opts, :width),

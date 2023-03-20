@@ -4,8 +4,7 @@ HTTP client that talks to **Hikvision** Camera/NVR using **ISAPI**.
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `hikvision_client` to your list of dependencies in `mix.exs`:
+The package can be installed by adding `hikvision_client` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
