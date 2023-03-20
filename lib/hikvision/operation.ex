@@ -64,8 +64,8 @@ defmodule Hikvision.Operation do
       :ok ->
         :ok
 
-      {:ok, %{status: status} = resp} when status in 200..299 ->
-        {:ok, parser.(resp)}
+      {:ok, %{status: status}} = resp when status in 200..299 ->
+        parser.(resp)
 
       {:ok, %{status: 401} = resp} ->
         {:error, resp}

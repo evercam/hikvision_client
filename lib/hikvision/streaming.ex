@@ -1,6 +1,26 @@
 defmodule Hikvision.Streaming do
   @moduledoc false
 
+  alias Hikvision.{Parsers, Operation}
+
+  @prefix "/ISAPI/Streaming"
+
+  @doc """
+  Get encoding configuration of the available channels
+  """
+  @spec channels() :: Operation.t()
+  def channels() do
+    Operation.new("#{@prefix}/channels", parser: &Parsers.parse_channels_config/1)
+  end
+
+  @doc """
+  Get encoding configuration of a channel
+  """
+  @spec channel(binary()) :: Operation.t()
+  def channel(channel) do
+    Operation.new("#{@prefix}/channels/#{channel}", parser: &Parsers.parse_channel_config/1)
+  end
+
   @doc """
   Get a picture from a live feed.
 
@@ -18,9 +38,9 @@ defmodule Hikvision.Streaming do
       videoResolutionHeight: Keyword.get(opts, :height)
     }
 
-    Hikvision.Operation.new("/ISAPI/Streaming/channels/#{channel}/picture",
+    Operation.new("#{@prefix}/channels/#{channel}/picture",
       params: query_params,
-      parser: fn %{body: body} -> body end
+      parser: &Parsers.body/1
     )
   end
 end
