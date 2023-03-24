@@ -26,7 +26,11 @@ defmodule Hikvision.System do
   """
   @spec reboot() :: Operation.t()
   def reboot(),
-    do: Operation.new("#{@prefix}/reboot", http_method: :put)
+    do:
+      Operation.new("#{@prefix}/reboot",
+        http_method: :put,
+        parser: &Parsers.parse_response_status/1
+      )
 
   @spec time() :: Operation.t()
   def time(), do: Operation.new("#{@prefix}/time", parser: &Parsers.parse_system_time/1)

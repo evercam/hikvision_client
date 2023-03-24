@@ -207,12 +207,18 @@ if Code.ensure_loaded?(SweetXml) do
           vbr_lower_cap: ~x"./vbrLowerCap/text()"oi,
           max_frame_rate: ~x"./maxFrameRate/text()"i,
           key_frame_interval: ~x"./keyFrameInterval/text()"io,
-          fixed_quality: ~x"./fixedQuality/text()"io
+          fixed_quality: ~x"./fixedQuality/text()"io,
+          smart_codec:
+            ~x"./SmartCodec/enabled/text()"so |> transform_by(&String.to_existing_atom/1)
         ]
       )
     end
 
-    def parse_error(%{body: xml}) do
+    def parse_response_status({:ok, %{body: xml}}), do: {:ok, do_parse_response_status(xml)}
+
+    def parse_response_status(%{body: xml}), do: do_parse_response_status(xml)
+
+    defp do_parse_response_status(xml) do
       xml
       |> SweetXml.xpath(~x"//ResponseStatus",
         endpoint: ~x"./requestURL/text()"s,

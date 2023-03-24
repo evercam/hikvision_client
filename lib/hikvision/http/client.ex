@@ -32,7 +32,8 @@ defmodule Hikvision.Http.Client do
     end
   end
 
-  defp req(http_method, url, headers, body) when http_method in [:post, :put, :patch] do
+  defp req(http_method, url, headers, body)
+       when http_method in [:post, :put, :patch] and not is_nil(body) do
     {to_charlist(url), headers_to_charlist(headers), to_charlist(content_type(headers)), body}
   end
 

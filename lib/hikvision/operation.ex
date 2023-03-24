@@ -75,7 +75,7 @@ defmodule Hikvision.Operation do
       {:ok, %{status: status} = resp} ->
         if status == 404,
           do: {:error, :not_found},
-          else: {:error, Hikvision.Parsers.parse_error(resp)}
+          else: {:error, Hikvision.Parsers.parse_response_status(resp)}
 
       {:error, error} ->
         {:error, error}
